@@ -8,6 +8,7 @@ function Vehicle(x, y, gen, dna) {
 	this.maxspeed = 3;
 	this.velocity.setMag(this.maxspeed);
 	
+	this.timeAlive = 0;	
 	this.generation = gen;
 	this.trust = 0.1;
 	// Check if DNA is an array
@@ -72,8 +73,8 @@ Vehicle.prototype.communicate = function(list) {
 
 	for(var i = list.length - 1; i >= 0; i--) {
 		var d = p5.Vector.dist(list[i].position, this.position);
-		// If this child has existed through more generations
-		if(d < this.dna[4] && this.generation < list[i].generation) {
+		// If this child is younger and lived through fewer generations, adjust dna.
+		if(d < this.dna[4] && this.generation < list[i].generation && this.timeAlive < list[i].timeAlive) {
 			for(var j = 0; j < this.dna.length; j++) {
 				if(random(1) < 0.001) {
 					// Moves value of dna "trust" % closer to the dna of higher performing

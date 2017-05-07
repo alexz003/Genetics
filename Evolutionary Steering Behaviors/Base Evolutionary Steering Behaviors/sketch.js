@@ -28,15 +28,16 @@ function setup() {
 
   // Create 10 vehicles
   angleMode(RADIANS);
-  for (var i = 0; i < 10; i++) {
-    population[i] = new Vehicle(width / 2, height / 2, 1);
+  for (var i = 0; i < 250; i++) {
+    // I want my initial population to be randomly desitributed
+    population[i] = new Vehicle(random(width),random(height), 1);
   }
   // Start with some food
-  for (var i = 0; i < 10; i++) {
+  for (var i = 0; i < 1000; i++) {
     food[i] = createVector(random(width), random(height));
   }
   // Start with some poison
-  for (var i = 0; i < 5; i++) {
+  for (var i = 0; i < 50; i++) {
     poison[i] = createVector(random(width), random(height));
   }
 }
@@ -50,19 +51,20 @@ function draw() {
   background(0);
 
   // 10% chance of new food
-  if (random(1) < 0.1) {
+  if (random(1) < 0.2) {
     food.push(createVector(random(width), random(height)));
   }
 
   // 1% chance of new poison
-  if (random(1) < 0.01) {
+  if (random(1) < 0.1) {
     poison.push(createVector(random(width), random(height)));
   }
 
   // Go through all vehicles
   for (var i = population.length - 1; i >= 0; i--) {
     var v = population[i];
-
+    
+    v.timeAlive++;
     // Eat the food (index 0)
     v.eat(food, 0);
     // Eat the poison (index 1)
@@ -79,6 +81,8 @@ function draw() {
     // If the vehicle has died, remove
     if (v.dead()) {
       population.splice(i, 1);
+      // Dead vehicles become food
+      food.push(createVector(v.position.x, v.position.y));
     } else {
       // Every vehicle has a chance of cloning itself
       var child = v.birth();
