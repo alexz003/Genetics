@@ -29,7 +29,7 @@ function setup() {
   // Create 10 vehicles
   angleMode(RADIANS);
   for (var i = 0; i < 10; i++) {
-    population[i] = new Vehicle(width / 2, height / 2);
+    population[i] = new Vehicle(width / 2, height / 2, 1);
   }
   // Start with some food
   for (var i = 0; i < 10; i++) {
@@ -43,7 +43,7 @@ function setup() {
 
 // Add new vehicles by dragging mouse
 function mouseDragged() {
-  population.push(new Vehicle(mouseX, mouseY));
+  population.push(new Vehicle(mouseX, mouseY, 0));
 }
 
 function draw() {
@@ -69,6 +69,8 @@ function draw() {
     v.eat(poison, 1);
     // Check boundaries
     v.boundaries();
+    // Check communication
+    v.communicate(population);
 
     // Update and draw
     v.update();
