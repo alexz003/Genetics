@@ -1,6 +1,9 @@
 var data, users;
-var dropdown1, dropdown2, scoredropdown;
+var dropdown1, scoredropdown;
 var scoreP;
+
+var resultDivs = [];
+
 
 function preload() {
 	data = loadJSON('movies.json');
@@ -10,39 +13,68 @@ function setup() {
 	noCanvas();
 	users = {};
 	dropdown1 = createSelect('');
-	dropdown2 = createSelect('');
 	scoredropdown = createSelect('');
 	scoredropdown.option('Euclidean');
 	scoredropdown.option('Pearson');
 	for(var i = 0; i < data.users.length; i++) {
 		var name = data.users[i].name;
 		dropdown1.option(name);
-		dropdown2.option(name);
 		users[name] = data.users[i];
 	}
 	
 	var button = createButton('submit');
-	button.mousePressed(chooseScoring);
+	button.mousePressed(findNearestNeighbors);
 	
 	scoreP = createP('');
 }
 
-function chooseScoring() {
-	if(scoredropdown.value() == 'Euclidean') 
-		euclideanSimilarity();
-	else
-		pearsonSimilarity();
+function findNearestNeighbors() {
+	for(var i = 0; i < resultDivs.length; i++) {
+		resultDivs[i].remove();
+	}
+	resultDivs = [];
+
+	var name = dropdown1.value();
+	var scores = {};
+	for(var i = 0; i < data.users.length; i++) {
+		var other = data.users[i];
+		// Avoid checking your own score against yourself
+		if(other.name != name) {
+			if(scoredropdown.value() == 'Euclidean') {
+				scores[other.name] = euclideanSimilarity(users[name], users[other.name]);
+			} else { 
+				scores[other.name] = pearsonSimilarity(users[name], users[other.name]);
+			}
+		} else {
+			scores[other.name] = -1;
+		} 
+	}
+	data.users.sort(compareSimilarity);
+	
+	function compareSimilarity(a, b) {
+		var score1 = scores[a.name];
+		var score2 = scores[b.name];
+		return score2 - score1;
+
+	}
+
+	var k = 5;
+	for(var i = 0; i < k; i++) {
+		var name = data.users[i].name;
+		resultDivs[i] = createDiv(name + ': ' + scores[name]);
+	}
+
 }
 
 // Scoring using Pearson Correlation Coefficient
-function pearsonSimilarity() {
+function pearsonSimilarity(person1, person2) {
 
 	// Cleaning up the data given to us
-	var ratings1 = Object.values(users[dropdown1.value()]);
+	var ratings1 = Object.values(users[person1.name]);
 	ratings1.splice(0, 2);
-	var ratings2 = Object.values(users[dropdown2.value()]);
+	var ratings2 = Object.values(users[person2.name]);
 	ratings2.splice(0, 2);
-	var movies = Object.keys(users[dropdown1.value()]);
+	var movies = Object.keys(users[person1.name]);
 	movies.splice(0, 2);
 
 	// Needed for perason scoring
@@ -88,34 +120,30 @@ function pearsonSimilarity() {
 	if(den == 0) {
 		return 0;
 	}
-	scoreP.html(num/den);
+	return num/den;
 }
 
 // Scoring using the Euclidean Distance Inverse as similarity
-function euclideanSimilarity() {
-	var name1 = dropdown1.value();
-	var name2 = dropdown2.value();
+function euclideanSimilarity(ratings1, ratings2) {
 	
-	var ratings1 = users[name1];
-	var ratings2 = users[name2];
-
 	var titles = Object.keys(ratings1);
 	
-	var i = titles.indexOf('name');
-	titles.splice(i, 1);
 	var j = titles.indexOf('timestamp');
 	titles.splice(j, 2);
-	
+
 	var sum = 0;
 	for(var i = 0; i < titles.length; i++) {
 		var title = titles[i];
 		var rating1 = ratings1[title];
 		var rating2 = ratings2[title];
-		var diff = rating1 - rating2;
-		sum += diff*diff;
+		
+		if(rating1 != null && rating2 != null) {
+			var diff = rating1 - rating2;
+			sum += diff*diff;
+		}
 	}	
 	var d = sqrt(sum);
 
 	var similarity = 1/(1+d);
-	scoreP.html(similarity);
+	return similarity;
 }
