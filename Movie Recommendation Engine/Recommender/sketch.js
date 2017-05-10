@@ -1,5 +1,6 @@
 var data, users;
 var dropdown1, scoredropdown;
+var scoresGiven = [];
 var scoreP;
 
 var resultDivs = [];
@@ -13,41 +14,53 @@ function setup() {
 	noCanvas();
 	users = {};
 
-	var titles = data.titles;
-	console.log(titles);
-	/*	
+	var titles = data.titles;	
 	for(var i = 0; i < titles.length; i++) {
 		var div = createDiv(titles[i]);
 		var dropdown = createSelect('');
+		dropdown.title = titles[i];
 		dropdown.option('not seen');
 		dropdown.parent(div);
 		for(var star = 1; star < 6; star++) {
 			dropdown.option(star);
 		}	
+		scoresGiven.push(dropdown);
 	}
-	*/
+	scoredropdown = createSelect('');
+	scoredropdown.option('Euclidean');
+	scoredropdown.option('Pearson');
+
+	var button = createButton('submit');
+	button.mousePressed(predictRatings);
+	scoreP = createP('');
 }
 
-function findNearestNeighbors() {
+function predictRatings() {
+	var newUser = {};
+	for(var i = 0; i < scoresGiven.length; i++) {
+		var title = scoresGiven[i].title;
+		newUser[title] = scoresGiven[i].value();
+		if(newUser[title] == 'not seen') {
+			newUser[title] = null;
+		}
+	}
+	findNearestNeighbors(newUser);
+}
+
+function findNearestNeighbors(person1) {
 	for(var i = 0; i < resultDivs.length; i++) {
 		resultDivs[i].remove();
 	}
 	resultDivs = [];
 
-	var name = dropdown1.value();
 	var scores = {};
 	for(var i = 0; i < data.users.length; i++) {
 		var other = data.users[i];
-		// Avoid checking your own score against yourself
-		if(other.name != name) {
-			if(scoredropdown.value() == 'Euclidean') {
-				scores[other.name] = euclideanSimilarity(users[name], users[other.name]);
-			} else { 
-				scores[other.name] = pearsonSimilarity(users[name], users[other.name]);
-			}
-		} else {
-			scores[other.name] = -1;
-		} 
+		if(scoredropdown.value() == 'Euclidean') {
+			scores[other.name] = euclideanSimilarity(person1, other);
+		} else { 
+			scores[other.name] = pearsonSimilarity(person1, other);
+		}
 	}
 	data.users.sort(compareSimilarity);
 	
@@ -67,16 +80,10 @@ function findNearestNeighbors() {
 }
 
 // Scoring using Pearson Correlation Coefficient
-function pearsonSimilarity(person1, person2) {
-
-	// Cleaning up the data given to us
-	var ratings1 = Object.values(users[person1.name]);
-	ratings1.splice(0, 2);
-	var ratings2 = Object.values(users[person2.name]);
-	ratings2.splice(0, 2);
-	var movies = Object.keys(users[person1.name]);
-	movies.splice(0, 2);
-
+function pearsonSimilarity(ratings1, ratings2) {
+	
+	var movies = Object.keys(ratings1);
+	
 	// Needed for perason scoring
 	var sum1 = 0;
 	var sum2 = 0;
@@ -88,23 +95,22 @@ function pearsonSimilarity(person1, person2) {
 	var n = 0;
 	for(var i = 0; i < movies.length; i++) {
 		// Will omit any ratings that were not included in the submission
-		if(ratings1[i] != null && ratings2[i] != null) {
-			var rating1 = ratings1[i];
-			var rating2 = ratings2[i];
-			
+		if(ratings1[movies[i]] != null && ratings2[movies[i]] != null) {
+			var rating1 = parseInt(ratings1[movies[i]]);
+			var rating2 = parseInt(ratings2[movies[i]]);
+	
 			// Sum the ratings
 			sum1 += rating1;
 			sum2 += rating2;
-			
+
 			// Sum the square of the ratings
 			sum1sq += (rating1*rating1);
 			sum2sq += (rating2*rating2);
 
 			//Sum the products of the ratings
 			pSum += (rating1*rating2);
+		
 			n++;
-		}else {
-			console.log('movies[' + i + '] was not rated for one of the chosen entries.');
 		}
 	}
 	
@@ -117,9 +123,11 @@ function pearsonSimilarity(person1, person2) {
 
 	var num = pSum - (sum1*sum2 / n);
 	var den = sqrt((sum1sq - sum1*sum1 / n)*(sum2sq - sum2*sum2/n));
+	
 	if(den == 0) {
 		return 0;
 	}
+	
 	return num/den;
 }
 
@@ -127,10 +135,6 @@ function pearsonSimilarity(person1, person2) {
 function euclideanSimilarity(ratings1, ratings2) {
 	
 	var titles = Object.keys(ratings1);
-	
-	var j = titles.indexOf('timestamp');
-	titles.splice(j, 2);
-
 	var sum = 0;
 	for(var i = 0; i < titles.length; i++) {
 		var title = titles[i];
