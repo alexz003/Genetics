@@ -71,11 +71,41 @@ function findNearestNeighbors(person1) {
 
 	}
 
+	for(var i = 0; i < data.titles.length; i++) {
+		var title = data.titles[i];
+		console.log(data);
+		if(person1[title] == null) {
+
+			var k = 5;
+			var weightedSum = 0;
+			var simSum = 0;
+			for(var j = 0; j < k; j++) {
+				var name = data.users[j].name;
+				var score = scores[name];
+				var ratings = data.users[j];
+				var rating = ratings[title];
+				if(rating != null) {
+					weightedSum += rating*score;
+					simSum += score;
+				}
+			}
+
+
+			var stars = nf(weightedSum / simSum, 1, 2);
+			var div = createDiv(title + ': ' + stars);
+			resultDivs.push(div);
+			div.parent(scoreP);
+		}
+	}	
+	/*
 	var k = 5;
 	for(var i = 0; i < k; i++) {
 		var name = data.users[i].name;
-		resultDivs[i] = createDiv(name + ': ' + scores[name]);
+		var div = createDiv(name + ': ' + scores[name]);
+		resultDivs.push(div);
+		div.parent(scoreP);
 	}
+	*/
 
 }
 
