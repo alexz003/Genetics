@@ -60,6 +60,7 @@ function findNearestNeighbors(person1) {
 			scores[other.name] = euclideanSimilarity(person1, other);
 		} else { 
 			scores[other.name] = pearsonSimilarity(person1, other);
+			//console.log(scores[other.name]);
 		}
 	}
 	data.users.sort(compareSimilarity);
@@ -73,7 +74,7 @@ function findNearestNeighbors(person1) {
 
 	for(var i = 0; i < data.titles.length; i++) {
 		var title = data.titles[i];
-		console.log(data);
+		//console.log(data);
 		if(person1[title] == null) {
 
 			var k = 5;
@@ -84,14 +85,18 @@ function findNearestNeighbors(person1) {
 				var score = scores[name];
 				var ratings = data.users[j];
 				var rating = ratings[title];
+				//console.log('name: ' + name + ' score: ' + score + ' ratings: ' + ratings + ' rating: ' + rating);
 				if(rating != null) {
 					weightedSum += rating*score;
 					simSum += score;
 				}
+				//console.log('weighted: ' + weightedSum + ' sim: ' + simSum);
 			}
 
-
-			var stars = nf(weightedSum / simSum, 1, 2);
+			var val = weightedSum/simSum;
+			//console.log(val);
+			var stars = nf(parseFloat(weightedSum) / parseFloat(simSum), 1, 2);
+			//console.log(stars);
 			var div = createDiv(title + ': ' + stars);
 			resultDivs.push(div);
 			div.parent(scoreP);
@@ -124,15 +129,17 @@ function pearsonSimilarity(ratings1, ratings2) {
 	// Number of movies
 	var n = 0;
 	for(var i = 0; i < movies.length; i++) {
+		//console.log(ratings1);
+		//console.log(ratings2);
 		// Will omit any ratings that were not included in the submission
 		if(ratings1[movies[i]] != null && ratings2[movies[i]] != null) {
 			var rating1 = parseInt(ratings1[movies[i]]);
 			var rating2 = parseInt(ratings2[movies[i]]);
-	
+			//console.log('rating1: ' + rating1 + ' rating2: ' + rating2);	
 			// Sum the ratings
 			sum1 += rating1;
 			sum2 += rating2;
-
+			//console.log('sum1: ' + sum1 + ' sum2: ' + sum2);
 			// Sum the square of the ratings
 			sum1sq += (rating1*rating1);
 			sum2sq += (rating2*rating2);
@@ -153,8 +160,8 @@ function pearsonSimilarity(ratings1, ratings2) {
 
 	var num = pSum - (sum1*sum2 / n);
 	var den = sqrt((sum1sq - sum1*sum1 / n)*(sum2sq - sum2*sum2/n));
-	
-	if(den == 0) {
+	//console.log(num + ' : ' + den);
+	if(den == 0 || num == 0) {
 		return 0;
 	}
 	
