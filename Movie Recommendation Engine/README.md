@@ -6,7 +6,7 @@
 Using a dataset of ratings for the Star Wars movies, create an algorithms that predicts star ratings for movies you haven't seen yet using k-Nearest-Neighbor(kNN). Similarity score is chosen using a dropdown. Both Euclidean distance and Pearson Correlation scoring are available. The user enters the ratings for each of the movies they have seen and a prediction should display for the other movies you haven't seen.
 
 ### Current Function
-v.3 Displaus estimated scores based on input and weighted pearson correlation score.
+v.3 Displays estimated scores based on input and weighted pearson correlation score.
 
 v.2 Displays estimated scores based on your input and a weighted euclidean similarity score.
 
