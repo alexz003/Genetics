@@ -2,39 +2,45 @@ var ptron;
 var t = [];
 var count = 0;
 var n = 2000;
+var vehicles = [];
+var objects = [];
 
 function setup() {
 	var canvas = createCanvas(400, 400);
-
-	ptron = new Perceptron(3);
-
-	for(var i = 0; i < n; i++) {
-		var x = random(-width/2, width/2);
-		var y = random(-height/2, height/2);
-		var a = 1;
-		if(y < calcLine(x))
-			a = -1;
-		t[i] = new Trainer(x, y, a);
+	angleMode(RADIANS);
+	for(var i = 0; i < 5; i++) {
+		objects[i] = {};
+		objects[i].location = createVector(floor(random(0, 400)), floor(random(0, 400)));
 	}
-
+	for(var i = 0; i < 25; i++) {
+		vehicles[i] = new Vehicle(random(0, 400), random(0, 400), random(.01, .05), objects);
+	}
 }
 
 function draw() {
 	background(255);
-	translate(width/2, height/2);
-
-	ptron.train(t[count].inputs, t[count].answer);
-	count = (count + 1) % t.length;
-
-	for(var i = 0; i < count; i++) {
-		stroke(0);
-		var guess = ptron.feedForward(t[i].inputs);
-		if(guess > 0)
-			 noFill();
-		else
-			fill(0);
-
-		ellipse(t[i].inputs[0], t[i].inputs[1], 8, 8);
+	//console.log(vehicle);	
+	
+	var loc = createVector(width/2, height/2);
+//	console.log(mouse);
+	for(var i = 0; i < vehicles.length; i++) {
+		vehicles[i].steer(objects);	
+		vehicles[i].update();
+		vehicles[i].display();
 	}
+
+	// Create objects
+	for(var i = 0; i < objects.length; i++) {
+		stroke(0);
+		strokeWeight(2);
+		fill(255);
+		rect(objects[i].location.x, objects[i].location.y, 20, 20);
+	}
+
+	// Draw circle at center of screen
+	stroke(0);
+	strokeWeight(2);
+	fill(0);
+	ellipse(width/2, height/2, 20, 20);
 }
 

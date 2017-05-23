@@ -1,36 +1,35 @@
-function Perceptron(n) {
+function Perceptron(c, objects) {
 	this.weights = [];
-	this.c = .01;
+	this.c = c;
 	
 	// Set random weight values initially
-	for(var i = 0; i < n; i++) {
-		this.weights[i] = random(-1, 1);
+	for(var i = 0; i < objects.length; i++) {
+		this.weights[i] = random(0, 1);
 	}
 }
 
 // Feeds input into the activate function to get perceptron output
-Perceptron.prototype.feedForward = function (inputs) {
-	var sum = 0;
-	for(var i = 0; i < this.weights.length; i++) {
-		// Stores the sum of the value to it's weight
-		sum += inputs[i]*this.weights[i];
+Perceptron.prototype.feedForward = function (forces) {
+	var sum = createVector(0, 0);
+
+	for(var i = 0; i < forces.length; i++) {
+//		console.log(forces);
+		forces[i].mult(this.weights[i]);
+		sum.add(forces[i]);
 	}
-
-	return this.activate(sum);
+	
+	// Return the sum of the forces
+	return sum;
 }
 
-// Get's the output of our perceptron
-Perceptron.prototype.activate = function (sum) {
-	if(sum > 0) return 1;
-	return -1;
-}
 
 // Adjusts weight to account for how incorrect the guess was
-Perceptron.prototype.train = function(inputs, desired) {
-	var guess = this.feedForward(inputs);
-	var error = desired - guess;
+Perceptron.prototype.train = function(forces, error) {
+	
 
 	for(var i = 0; i < this.weights.length; i++) {
-		this.weights[i] += this.c*error*inputs[i];
+		this.weights[i] += this.c*error.x*forces[i].x;
+		this.weights[i] += this.c*error.y*forces[i].y;
+		this.weights[i] = constrain(this.weights[i], 0, 1);
 	}
 }
