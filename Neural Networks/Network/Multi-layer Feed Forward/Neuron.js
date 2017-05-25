@@ -1,7 +1,8 @@
 function Neuron(x, y) {
 	this.location = createVector(x, y);
 	this.sum = 0;
-	this.connections = [];
+	this.connectionsTo = [];
+	this.connectionsFrom = [];
 	this.r = 32;
 }
 
@@ -15,13 +16,18 @@ Neuron.prototype.feedForward = function(input) {
 
 Neuron.prototype.fire = function() {
 	this.r = 64;
-	for(var i = 0; i < this.connections.length; i++) {
-		this.connections[i].feedForward(this.sum);
+	for(var i = 0; i < this.connectionsTo.length; i++) {
+		this.connectionsTo[i].feedForward(this.sum);
 	}
 }
 
 Neuron.prototype.addConnection = function(c) {
-	this.connections.push(c);
+	this.connectionsTo.push(c);
+	var cFrom = new Connection(c.a, c.b, c.weight);
+	var temp = cFrom.a;
+	cFrom.a = cFrom.b;
+	cFrom.b = temp;
+	this.connectionsFrom.push(cFrom);
 }
 
 Neuron.prototype.display = function() {

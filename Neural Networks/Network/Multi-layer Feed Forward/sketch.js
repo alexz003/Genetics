@@ -15,10 +15,10 @@ function setup() {
 
 	network.connect(a, c, random(1));
 	network.connect(a, d, random(1));
-	network.connect(b, c, random(1));
-	network.connect(b, d, random(1));
-	network.connect(c, f, random(1));
-	network.connect(d, e, random(1));
+	network.connect(b, c, .5);
+	network.connect(b, d, random(.1, .9));
+	network.connect(c, f, random(.01, .1));
+	network.connect(d, e, random(.1, .5));
 	network.connect(e, g, 1);
 	network.connect(f, g, 1);
 	
