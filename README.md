@@ -1,7 +1,8 @@
 # Genetics
+Exploration of Machine Learning
 
 ## About
-I go through different examples from videos made by Daniel Shiffman. I implement his Coding Challeneges and place them in the appropriately named folder. Additionally to the coding challenges, I try to implement different ideas I read about and place them in separate folder.
+Using Daniel Shiffman's examples in his Intelligence and Learning course, I want to learn techniques used to develop machine learning algorithms. I will attempt to integrate my own ideas into these programs to see how I can increase how fast my objects learn.
 
 ## API Reference
-[p5.js](http://www.p5js.org/)
+[p5.js](https://www.p5js.org/)
